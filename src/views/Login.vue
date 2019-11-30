@@ -14,7 +14,9 @@
     <form
       v-else
       v-on:submit.prevent="logout()">
-      <input type="submit" value="Logout">
+      <div class="">Logged in as: {{current_username}}</div>
+      <!-- submit input had a bug not showing the value -->
+      <button type="button" v-on:click="logout()">Logout</button>
     </form>
 
   </div>
@@ -38,6 +40,7 @@ export default {
       },
 
       logging_in: false,
+      current_username: "test",
       error_message: "",
 
     }
@@ -45,7 +48,10 @@ export default {
   mounted(){
     // Check login status
     this.axios.post("https://authentication.maximemoreillon.com/status")
-    .then( response => this.logged_in = response.data.logged_in )
+    .then( response => {
+      this.current_username = response.data.username
+      this.logged_in = response.data.logged_in
+    }  )
     .catch(error => console.log(error))
   },
   methods: {
@@ -60,11 +66,8 @@ export default {
       .then(response => {
 
         this.logging_in = false;
-
-        console.log(response.data)
-
         this.logged_in = response.data.logged_in
-
+        this.current_username = response.data.username
         this.error_message = response.data.error;
 
         // If successful login, redirect to app when done
@@ -101,10 +104,10 @@ form > * {
   margin: 10px;
   padding: 10px;
   width: 250px;
+  text-align: center;
 }
 
 .error_message {
-  text-align: center;
   color: #c00000;
 }
 
@@ -123,16 +126,15 @@ input[type="text"]:focus,input[type="password"]:focus {
   border-bottom: 2px solid #c00000;
 }
 
-input[type="submit"] {
+input[type="submit"], button {
   border: 2px solid #444444;
   background-color: white;
   color: #444444;
   transition: border-color 0.25s;
   cursor: pointer;
-
 }
 
-input[type="submit"]:hover {
+input[type="submit"]:hover, button:hover {
   border: 2px solid #c00000;
 }
 
