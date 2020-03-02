@@ -14,7 +14,7 @@
     <form
       v-else
       v-on:submit.prevent="logout()">
-      <div class="">Logged in as: {{current_username}}</div>
+      <div class="">Logged in</div>
       <!-- submit input had a bug not showing the value -->
       <button type="button" v-on:click="logout()">Logout</button>
     </form>
@@ -32,7 +32,6 @@ export default {
   },
   data(){
     return{
-      logged_in: false,
 
       input_data: {
         username: "",
@@ -40,20 +39,11 @@ export default {
       },
 
       logging_in: false,
-      current_username: "test",
       error_message: "",
 
     }
   },
-  mounted(){
-    // Check login status
-    this.axios.post("https://authentication.maximemoreillon.com/status")
-    .then( response => {
-      this.current_username = response.data.username
-      this.logged_in = response.data.logged_in
-    }  )
-    .catch(error => console.log(error))
-  },
+
   methods: {
     login(){
       this.logging_in = true;
@@ -66,26 +56,35 @@ export default {
       .then(response => {
 
         this.logging_in = false;
-        this.logged_in = response.data.logged_in
-        this.current_username = response.data.username
-        this.error_message = response.data.error;
+        this.error_message = null;
 
-        // If successful login, redirect to app when done
-        if(this.logged_in && document.referrer) window.location.href = document.referrer;
+        //this.$cookies.set("jwt", response.data.jwt)
+        this.$cookies.set("jwt", response.data.jwt, '7d', null, ".maximemoreillon.com");
+        this.$cookies.set("jwt", response.data.jwt, '7d', null, null);
+
+        // If successful login, redirect to desired app when done
+        if(document.referrer) window.location.href = document.referrer
+
+        // If no app to redirect to, simply reload
+        else location.reload()
 
       })
-      .catch(error => console.log(error))
+      .catch(error => { this.error_message = error.response.data })
     },
     logout(){
-      this.axios.post("https://authentication.maximemoreillon.com/logout")
-      .then(response => this.logged_in = response.data.logged_in)
-      .catch(error => console.log(error))
+      this.$cookies.remove('jwt', null, ".maximemoreillon.com")
+      this.$cookies.remove('jwt', null, null)
+      location.reload()
     },
   },
   computed: {
     login_button_text(){
       if(this.logging_in) return "Logging in..."
       else return "Login"
+    },
+    logged_in(){
+      if(this.$cookies.get('jwt')) return true
+      else return false
     }
   }
 

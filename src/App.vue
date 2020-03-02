@@ -15,10 +15,6 @@ export default {
   components: {
     AppTemplate,
   },
-  data(){
-    return {
-    }
-  }
 }
 </script>
 

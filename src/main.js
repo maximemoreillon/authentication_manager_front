@@ -4,12 +4,12 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import VueCookies from 'vue-cookies'
 import '@mdi/font/css/materialdesignicons.css';
 
-axios.defaults.withCredentials = true
-axios.defaults.crossDomain = true
-
 Vue.use(VueAxios, axios)
+Vue.use(VueCookies)
+
 Vue.config.productionTip = false
 
 new Vue({
