@@ -14,7 +14,7 @@
     <form
       v-else
       v-on:submit.prevent="logout()">
-      <div class="">Logged in</div>
+      <div class="">Logged in as {{username}}</div>
       <!-- submit input had a bug not showing the value -->
       <button type="button" v-on:click="logout()">Logout</button>
     </form>
@@ -38,13 +38,30 @@ export default {
         password: "",
       },
 
+      username: '',
       logging_in: false,
       error_message: "",
 
     }
   },
+  mounted(){
+    if(this.$cookies.get('jwt')) {
+      this.axios.post(process.env.VUE_APP_API_URL + "/whoami",
+      {}, {
+        headers: { Authorization: "Bearer " + this.$cookies.get('jwt') }
+      })
 
+      .then(response => {
+
+        this.username = response.data.username
+
+      })
+      .catch(error => { alert(error.response.data) })
+    }
+
+  },
   methods: {
+
     login(){
       this.logging_in = true;
       this.error_message = "";
@@ -65,7 +82,7 @@ export default {
         // If successful login, redirect to desired app when done
         if(document.referrer) window.location.href = document.referrer
 
-        // If no app to redirect to, simply reload
+        // If no app to redirect to, simply reload (not very elegant)
         else location.reload()
 
       })
@@ -74,6 +91,8 @@ export default {
     logout(){
       this.$cookies.remove('jwt', null, ".maximemoreillon.com")
       this.$cookies.remove('jwt', null, null)
+
+      // Not very elegant
       location.reload()
     },
   },
