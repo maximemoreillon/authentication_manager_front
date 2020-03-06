@@ -49,7 +49,7 @@ export default {
       this.logging_in = true;
       this.error_message = "";
 
-      this.axios.post("https://authentication.maximemoreillon.com/login", {
+      this.axios.post(process.env.VUE_APP_API_URL + "/login", {
         username: this.input_data.username,
         password: this.input_data.password
       })
