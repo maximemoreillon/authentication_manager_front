@@ -45,19 +45,7 @@ export default {
     }
   },
   mounted(){
-    if(this.$cookies.get('jwt')) {
-      this.axios.post(process.env.VUE_APP_API_URL + "/whoami",
-      {}, {
-        headers: { Authorization: "Bearer " + this.$cookies.get('jwt') }
-      })
-
-      .then(response => {
-
-        this.username = response.data.username
-
-      })
-      .catch(error => { alert(error.response.data) })
-    }
+    this.get_username_if_logged_in()
 
   },
   methods: {
@@ -75,9 +63,8 @@ export default {
         this.logging_in = false;
         this.error_message = null;
 
-        //this.$cookies.set("jwt", response.data.jwt)
-        this.$cookies.set("jwt", response.data.jwt, '7d', null, ".maximemoreillon.com");
-        this.$cookies.set("jwt", response.data.jwt, '7d', null, null);
+        // save the cookie
+        this.$cookies.set("jwt", response.data.jwt, '14d', null, process.env.VUE_APP_COOKIE_DOMAIN)
 
         // If successful login, redirect to desired app when done
         if(document.referrer) window.location.href = document.referrer
@@ -89,12 +76,23 @@ export default {
       .catch(error => { this.error_message = error.response.data })
     },
     logout(){
-      this.$cookies.remove('jwt', null, ".maximemoreillon.com")
-      this.$cookies.remove('jwt', null, null)
+      this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN)
 
       // Not very elegant
       location.reload()
     },
+    get_username_if_logged_in(){
+      if(this.$cookies.get('jwt')) {
+        this.axios.post(process.env.VUE_APP_API_URL + "/whoami", {}, {
+          headers: { Authorization: "Bearer " + this.$cookies.get('jwt') }
+        })
+
+        .then(response => {
+          this.username = response.data.properties.username
+        })
+        .catch(error => { alert(error.response.data) })
+      }
+    }
   },
   computed: {
     login_button_text(){
@@ -102,6 +100,7 @@ export default {
       else return "Login"
     },
     logged_in(){
+      // this will not work
       if(this.$cookies.get('jwt')) return true
       else return false
     }
