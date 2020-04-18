@@ -54,7 +54,7 @@ export default {
       this.logging_in = true;
       this.error_message = "";
 
-      this.axios.post(process.env.VUE_APP_API_URL + "/login", {
+      this.axios.post(process.env.VUE_APP_AUTHENTICATION_API_URL + "/login", {
         username: this.input_data.username,
         password: this.input_data.password
       })
@@ -83,7 +83,7 @@ export default {
     },
     get_username_if_logged_in(){
       if(this.$cookies.get('jwt')) {
-        this.axios.post(process.env.VUE_APP_API_URL + "/whoami", {}, {
+        this.axios.post(process.env.VUE_APP_AUTHENTICATION_API_URL + "/whoami", {}, {
           headers: { Authorization: "Bearer " + this.$cookies.get('jwt') }
         })
 
