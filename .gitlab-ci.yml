@@ -5,6 +5,7 @@ stages:
 variables:
   APPLICATION_NAME: authentication-front
   DOCKER_IMAGE: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+  CERTIFICATE_DOMAIN: authentication.maximemoreillon.com
 
 containerization:
   stage: containerization
