@@ -52,3 +52,4 @@ spec:
         backend:
           serviceName: ${APPLICATION_NAME} # Name of the service, named after the app
           servicePort: 80
+          
