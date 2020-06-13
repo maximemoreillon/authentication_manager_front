@@ -10,13 +10,7 @@ variables:
 containerization:
   stage: containerization
   script:
-    - cp ${ENV} ./.env.production
-    - >
-      docker build
-      --build-arg HTTP_PROXY=$HTTP_PROXY
-      --build-arg HTTPS_PROXY=$HTTPS_PROXY
-      -t ${DOCKER_IMAGE}
-      .
+    - docker build -t ${DOCKER_IMAGE} .
     - docker push ${DOCKER_IMAGE}
     - docker image rm ${DOCKER_IMAGE}
 
