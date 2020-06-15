@@ -18,8 +18,13 @@ spec:
         imagePullPolicy: Always # ENsures a new image is pulled at restart
         ports:
         - containerPort: 80
+        # Get environment variables from secret
+        envFrom:
+        - secretRef:
+           name: environment-variables
+      # Registry login
       imagePullSecrets:
-      - name: registry-credentials # Registry login
+      - name: registry-credentials
 ---
 apiVersion: v1
 kind: Service

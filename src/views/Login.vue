@@ -76,7 +76,8 @@ export default {
       .catch(error => { this.error_message = error.response.data })
     },
     logout(){
-      this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN)
+      //this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN)
+      this.$cookies.remove('jwt')
 
       // Not very elegant
       location.reload()
