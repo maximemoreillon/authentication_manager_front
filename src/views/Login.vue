@@ -18,7 +18,9 @@
 
       <input type="submit" v-bind:value="login_button_text">
 
-      <span class="error_message">{{error_message}}</span>
+      <span v-if="error_message"  class="error_message">{{error_message}}</span>
+
+      <span v-if="credentials_hint" class="hint">{{credentials_hint}}</span>
 
     </form>
 
@@ -49,6 +51,8 @@ export default {
         identifier: "",
         password: "",
       },
+
+      credentials_hint: process.env.VUE_APP_CREDENTIALS_HINT,
 
       username: '',
       logging_in: false,
@@ -185,6 +189,10 @@ input[type="submit"], button {
 
 input[type="submit"]:hover, button:hover {
   border: 2px solid #c00000;
+}
+
+.hint {
+  font-size: 80%;
 }
 
 
