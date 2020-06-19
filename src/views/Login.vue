@@ -89,8 +89,8 @@ export default {
       .finally(() => {this.logging_in = false})
     },
     logout(){
-      //this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN)
-      this.$cookies.remove('jwt')
+      this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN)
+      //this.$cookies.remove('jwt')
 
       // Not very elegant
       location.reload()
