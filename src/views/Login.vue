@@ -2,47 +2,67 @@
   <div class="login_view">
 
     <!-- login form -->
-    <form
-      v-if="!logged_in"
-      v-on:submit.prevent="login()">
+    <div class="loader_wrapper" v-if="logging_in">
+      <loader class="loader">Logging in</loader>
+    </div>
 
-      <div class="">
-        <label>Username / email</label>
-        <input type="text" v-model="input_data.identifier">
-      </div>
 
-      <div class="">
-        <label>Password</label>
-        <input type="password" v-model="input_data.password">
-      </div>
+    <template v-else>
+      <form
+        v-if="!logged_in"
+        v-on:submit.prevent="login()">
 
-      <input type="submit" v-bind:value="login_button_text">
+        <div class="">
+          <label>Username / email</label>
+          <input type="text" v-model="input_data.identifier">
+        </div>
 
-      <span v-if="error_message"  class="error_message">{{error_message}}</span>
+        <div class="">
+          <label>Password</label>
+          <input type="password" v-model="input_data.password">
+        </div>
 
-      <span v-if="credentials_hint" class="hint">{{credentials_hint}}</span>
+        <input type="submit" value="Login">
 
-    </form>
+        <span v-if="error_message"  class="error_message">{{error_message}}</span>
 
-    <!-- logout form -->
-    <form
-      v-else
-      v-on:submit.prevent="logout()">
-      <div class="">Logged in as {{username}}</div>
-      <!-- submit input had a bug not showing the value -->
-      <input type="submit" value="logout">
-    </form>
+        <span v-if="credentials_hint" class="hint">{{credentials_hint}}</span>
+
+      </form>
+
+      <!-- logout form -->
+      <form
+        v-else
+        v-on:submit.prevent="logout()">
+
+        <template v-if="user">
+          <div class="">Logged in as {{user.properties.display_name}}</div>
+        </template>
+
+
+        <!-- submit input had a bug not showing the value -->
+        <div class="" v-if="redirecting">
+          <loader class="loader" >redirecting...</loader>
+        </div>
+
+        <input type="submit" value="logout" v-else>
+
+      </form>
+    </template>
+
+
 
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+import loader from '@moreillon/vue_loader'
 
 export default {
   name: 'Login',
   components: {
-
+    loader,
   },
   data(){
     return{
@@ -54,62 +74,65 @@ export default {
 
       credentials_hint: process.env.VUE_APP_CREDENTIALS_HINT,
 
-      username: '',
+      logged_in: false,
+      user: null,
       logging_in: false,
       error_message: "",
+
+      redirecting: false,
 
     }
   },
   mounted(){
-    this.get_username_if_logged_in()
+    this.check_if_logged_in()
+    //this.get_username_if_logged_in()
 
   },
   methods: {
 
     login(){
       this.logging_in = true;
-      this.error_message = "";
+      this.error_message = null;
 
       this.axios.post(`${process.env.VUE_APP_AUTHENTICATION_API_URL}/login`, {
         identifier: this.input_data.identifier,
         password: this.input_data.password
       })
       .then(response => {
-
-
-        this.error_message = null;
-
         // save the cookie
         this.$cookies.set("jwt", response.data.jwt, '14d', null, process.env.VUE_APP_COOKIE_DOMAIN)
 
         // If successful login, redirect to desired app when done
-        if(document.referrer) window.location.href = document.referrer
+        if(document.referrer) {
+          this.redirecting = true;
+          setTimeout(() => {window.location.href = document.referrer}, 2000)
+        }
 
-        // If no app to redirect to, simply reload (not very elegant)
-        else location.reload()
+        this.logged_in = true;
+
+        this.get_user_info();
 
       })
       .catch(error => { this.error_message = error.response.data })
-      .finally(() => {this.logging_in = false})
+      .finally(() => { this.logging_in = false })
     },
     logout(){
       this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN)
-      //this.$cookies.remove('jwt')
-
-      // Not very elegant
-      location.reload()
+      this.logged_in = false
     },
-    get_username_if_logged_in(){
+    check_if_logged_in(){
       if(this.$cookies.get('jwt')) {
-        this.axios.post(process.env.VUE_APP_AUTHENTICATION_API_URL + "/whoami", {}, {
-          headers: { Authorization: "Bearer " + this.$cookies.get('jwt') }
-        })
-
-        .then(response => {
-          this.username = response.data.properties.username
-        })
-        .catch(error => { alert(error.response.data) })
+        this.logged_in = true;
+        this.get_user_info();
       }
+    },
+    get_user_info(){
+      this.user = null;
+      this.axios.post(`${process.env.VUE_APP_AUTHENTICATION_API_URL}/whoami`, {}, {
+        headers: { Authorization: "Bearer " + this.$cookies.get('jwt') }
+      })
+      .then(response => {this.user = response.data})
+      .catch(error => { console.error(error) })
     }
   },
   computed: {
@@ -117,11 +140,6 @@ export default {
       if(this.logging_in) return "Logging in..."
       else return "Login"
     },
-    logged_in(){
-      // this will not work
-      if(this.$cookies.get('jwt')) return true
-      else return false
-    }
   }
 
 }
@@ -163,7 +181,7 @@ form label {
 
 input, button {
   width: 50vw;
-  max-width: 500px;
+  max-width: 300px;
   font-size: 100%;
   padding: 0.25em;
 }
@@ -195,5 +213,10 @@ input[type="submit"]:hover, button:hover {
   font-size: 80%;
 }
 
+.loader_wrapper {
+  font-size: 150%;
+  display: flex;
+  justify-content: center;
+}
 
 </style>
