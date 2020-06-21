@@ -2,8 +2,8 @@
   <div class="login_view">
 
     <!-- login form -->
-    <div class="loader_wrapper" v-if="logging_in">
-      <loader class="loader">Logging in</loader>
+    <div class="loader_container" v-if="logging_in">
+      <loader class="loader" :blinking="false">Logging in</loader>
     </div>
 
 
@@ -12,6 +12,7 @@
         v-if="!logged_in"
         v-on:submit.prevent="login()">
 
+        <!-- Username/ email inpout -->
         <div class="">
           <label>Username / email</label>
           <input type="text" v-model="input_data.identifier">
@@ -35,17 +36,19 @@
         v-else
         v-on:submit.prevent="logout()">
 
-        <template v-if="user">
+        <div class="" v-if="user_loading">
+          <loader class="loader" :blinking="false">Loading user info...</loader>
+        </div>
+        <template v-else-if="user">
           <div class="">Logged in as {{user.properties.display_name}}</div>
         </template>
 
-
-        <!-- submit input had a bug not showing the value -->
+        <!-- Showing loader when redirecting -->
         <div class="" v-if="redirecting">
-          <loader class="loader" >redirecting...</loader>
+          <loader class="loader" :blinking="false">redirecting...</loader>
         </div>
 
-        <input type="submit" value="logout" v-else>
+        <input v-else type="submit" value="logout" >
 
       </form>
     </template>
@@ -75,9 +78,11 @@ export default {
       credentials_hint: process.env.VUE_APP_CREDENTIALS_HINT,
 
       logged_in: false,
-      user: null,
       logging_in: false,
       error_message: "",
+
+      user: null,
+      user_loading: false,
 
       redirecting: false,
 
@@ -85,7 +90,6 @@ export default {
   },
   mounted(){
     this.check_if_logged_in()
-    //this.get_username_if_logged_in()
 
   },
   methods: {
@@ -127,12 +131,14 @@ export default {
       }
     },
     get_user_info(){
-      this.user = null;
+      this.user = null
+      this.user_loading = true
       this.axios.post(`${process.env.VUE_APP_AUTHENTICATION_API_URL}/whoami`, {}, {
         headers: { Authorization: "Bearer " + this.$cookies.get('jwt') }
       })
       .then(response => {this.user = response.data})
       .catch(error => { console.error(error) })
+      .finally(() => this.user_loading = false)
     }
   },
   computed: {
@@ -213,7 +219,7 @@ input[type="submit"]:hover, button:hover {
   font-size: 80%;
 }
 
-.loader_wrapper {
+.loader_container {
   font-size: 150%;
   display: flex;
   justify-content: center;
