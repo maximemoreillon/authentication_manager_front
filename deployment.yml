@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ${APPLICATION_NAME}
-        image: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+        image: ${DOCKER_IMAGE}
         imagePullPolicy: Always # ENsures a new image is pulled at restart
         ports:
         - containerPort: 80
