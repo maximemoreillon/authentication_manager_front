@@ -15,6 +15,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Loading environment variables at runtime
 COPY ./entrypoint.sh /entrypoint.sh
-# DOES NOT SEEM TO BE WORKING
 RUN chmod +x /entrypoint.sh
+RUN ls -al /
+RUN /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
