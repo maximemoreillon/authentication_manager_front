@@ -15,7 +15,7 @@ spec:
       containers:
       - name: ${APPLICATION_NAME}
         image: ${DOCKER_IMAGE}
-        imagePullPolicy: Always # ENsures a new image is pulled at restart
+        imagePullPolicy: Always # Ensures a new image is pulled at restart
         ports:
         - containerPort: 80
         # Get environment variables from secret
