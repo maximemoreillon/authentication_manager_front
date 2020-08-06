@@ -104,7 +104,8 @@ export default {
       })
       .then(response => {
         // save the cookie
-        this.$cookies.set("jwt", response.data.jwt, '14d', null, process.env.VUE_APP_COOKIE_DOMAIN)
+        // 14 days, undefined path, domain if existing, secure none (because intranet),
+        this.$cookies.set("jwt", response.data.jwt, '14d', null, process.env.VUE_APP_COOKIE_DOMAIN, null, 'Strict')
 
         // If successful login, redirect to desired app when done
         if(document.referrer) {
@@ -121,7 +122,7 @@ export default {
       .finally(() => { this.logging_in = false })
     },
     logout(){
-      this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN)
+      this.$cookies.remove('jwt', null, process.env.VUE_APP_COOKIE_DOMAIN, null, 'Strict')
       this.logged_in = false
     },
     check_if_logged_in(){
